@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>StudentHub | Student Management</title>
+
+    <!-- CONNECT CSS FILE -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+</head>
+
+<body>
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <a href="/" class="brand">
+            <span class="brand-logo">S</span>
+            <span>Student<span class="brand-accent">Hub</span></span>
+        </a>
+
+        <p class="menu-title">MAIN MENU</p>
+
+        <a href="/" class="nav-link active">
+            <span class="nav-icon">▦</span> Dashboard
+        </a>
+        <a href="#students" class="nav-link">
+            <span class="nav-icon">♙</span> All Students
+        </a>
+        <a href="#add-student" class="nav-link">
+            <span class="nav-icon">＋</span> Add Student
+        </a>
+
+        <div class="sidebar-bottom">
+            <div class="help-card">
+                <span class="sparkle">✦</span>
+                <h3>Stay organized!</h3>
+                <p>All your student information, beautifully organized in one place.</p>
+            </div>
+            <p class="copyright">STUDENTHUB © 2026</p>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">OVERVIEW</p>
+                <h1>Student Dashboard</h1>
+                <p class="subtitle">Welcome back! Here's your student management overview.</p>
+            </div>
+
+            <a href="#add-student" class="button button-primary">
+                + Add New Student
+            </a>
+        </header>
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="messages">
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- STATISTICS -->
+        <section class="stats-grid">
+            <article class="stat-card">
+                <div class="stat-heading">
+                    <span>Total Students</span>
+                    <span class="stat-icon purple">♙</span>
+                </div>
+                <h2>{{ total }}</h2>
+                <p class="stat-description">Registered students</p>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-heading">
+                    <span>Courses</span>
+                    <span class="stat-icon green">▤</span>
+                </div>
+                <h2>{{ courses }}</h2>
+                <p class="stat-description">Unique courses enrolled</p>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-heading">
+                    <span>Showing Records</span>
+                    <span class="stat-icon orange">☷</span>
+                </div>
+                <h2>{{ students|length }}</h2>
+                <p class="stat-description">Matching students</p>
+            </article>
+        </section>
+
+        <!-- MAIN PANELS -->
+        <section class="dashboard-grid">
+
+            <!-- ADD STUDENT FORM -->
+            <div class="panel add-panel" id="add-student">
+                <div class="panel-title">
+                    <div>
+                        <p class="eyebrow">NEW RECORD</p>
+                        <h2>Add a Student</h2>
+                    </div>
+                    <span class="title-icon">＋</span>
+                </div>
+
+                <form action="{{ url_for('add_student') }}"
+                      method="POST" class="student-form">
+
+                    <label for="name">Full Name</label>
+                    <input id="name" name="name" type="text"
+                           placeholder="Enter full name"
+                           maxlength="100" required>
+
+                    <label for="email">Email Address</label>
+                    <input id="email" name="email" type="email"
+                           placeholder="student@example.com"
+                           maxlength="150" required>
+
+                    <label for="course">Select Course</label>
+                    <select id="course" name="course" required>
+                        <option value="">Choose a course</option>
+                        <option value="BCA">BCA</option>
+                        <option value="B.Tech">B.Tech</option>
+                        <option value="MCA">MCA</option>
+                        <option value="BBA">BBA</option>
+                        <option value="B.Com">B.Com</option>
+                        <option value="BA">BA</option>
+                        <option value="B.Sc">B.Sc</option>
+                        <option value="MBA">MBA</option>
+                        <option value="Other">Other</option>
+                    </select>
+
+                    <label for="phone">Phone Number</label>
+                    <input id="phone" name="phone" type="tel"
+                           placeholder="Enter phone number"
+                           maxlength="20" required>
+
+                    <button type="submit" class="button button-primary save-button">
+                        + Save Student
+                    </button>
+                </form>
+            </div>
+
+            <!-- STUDENT DIRECTORY -->
+            <div class="panel records-panel" id="students">
+                <div class="panel-title">
+                    <div>
+                        <p class="eyebrow">DIRECTORY</p>
+                        <h2>Student Records</h2>
+                    </div>
+                    <span class="record-badge">
+                        {{ students|length }} records
+                    </span>
+                </div>
+
+                <!-- SEARCH FORM -->
+                <form action="{{ url_for('home') }}"
+                      method="GET" class="search-form">
+                    <span class="search-symbol">⌕</span>
+                    <input type="search" name="search"
+                           value="{{ search }}"
+                           placeholder="Search students...">
+                    <button type="submit" class="search-button">Search</button>
+                    {% if search %}
+                        <a href="{{ url_for('home') }}" class="clear-button">Clear</a>
+                    {% endif %}
+                </form>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>STUDENT</th>
+                                <th>COURSE</th>
+                                <th>PHONE</th>
+                                <th>ACTION</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for student in students %}
+                            <tr>
+                                <td>
+                                    <div class="student-cell">
+                                        <span class="avatar">
+                                            {{ student['name'][0]|upper }}
+                                        </span>
+                                        <div class="student-details">
+                                            <strong>{{ student['name'] }}</strong>
+                                            <small>{{ student['email'] }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="course-badge">
+                                        {{ student['course'] }}
+                                    </span>
+                                </td>
+
+                                <td class="phone-text">
+                                    {{ student['phone'] }}
+                                </td>
+
+                                <td>
+                                    <form action="{{ url_for('delete_student', student_id=student['id']) }}"
+                                          method="POST"
+                                          onsubmit="return confirm('Delete this student?');">
+                                        <button type="submit" class="delete-button">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state">
+                                        <span>♙</span>
+                                        <h3>No students found</h3>
+                                        <p>
+                                            {% if search %}
+                                                Try a different search term.
+                                            {% else %}
+                                                Add your first student using the form.
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-footer">
+                    <span>Student directory</span>
+                    <span>{{ students|length }} result(s)</span>
+                </div>
+            </div>
+        </section>
+
+        <footer class="page-footer">
+            <span>Made with care for better student management.</span>
+            <span>StudentHub · 2026</span>
+        </footer>
+
+    </main>
+</div>
+</body>
+</html>
